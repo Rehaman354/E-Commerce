@@ -14,7 +14,7 @@ import java.util.Date;
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="customer")
+@Table(name="card")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
 public class Card {
     @Id

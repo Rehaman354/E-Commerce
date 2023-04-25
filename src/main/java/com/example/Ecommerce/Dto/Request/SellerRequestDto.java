@@ -1,35 +1,20 @@
-package com.example.Ecommerce.model;
+package com.example.Ecommerce.Dto.Request;
 
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-@Entity
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="item")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
-public class Item {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+public class SellerRequestDto {
     String name;
-    int requiredQuantity;
-
-    //relations
-    @ManyToOne
-    @JoinColumn
-    Cart cart;
-
-    @ManyToOne
-    @JoinColumn
-    OrderClass orderClass;
-
-    @OneToOne
-    @JoinColumn
-    Product product;
+    int age;
+    String mobNo;
+    String email;
+    String address;
+    String enterprise;
 }

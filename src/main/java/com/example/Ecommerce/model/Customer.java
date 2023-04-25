@@ -23,6 +23,7 @@ public class Customer {
     String name;
     int age;
     String mobNo;
+    @Column(unique = true)
     String email;
     String address;
     boolean premium;//tells he is premium member or not

@@ -1,11 +1,9 @@
 package com.example.Ecommerce.model;
 
 import com.example.Ecommerce.Enum.ProductCategory;
+import com.example.Ecommerce.Enum.ProductStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
@@ -14,8 +12,9 @@ import java.util.Date;
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="customer")
+@Table(name="product")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
+@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,13 +23,18 @@ public class Product {
     int price;
     int quantity;
     Date manufactureDate;
-    Date ExpiryDate;
+    Date expiryDate;
 
     @Enumerated(EnumType.STRING)
     ProductCategory productCategory;//enum
+    @Enumerated(EnumType.STRING)
+    ProductStatus productStatus;
 
     //relations
     @ManyToOne
     @JoinColumn
     Seller seller;
+
+    @OneToOne(mappedBy = "product",cascade = CascadeType.ALL)
+    Item item;
 }

@@ -1,10 +1,7 @@
 package com.example.Ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
@@ -14,8 +11,9 @@ import java.util.List;
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="customer")
+@Table(name="seller")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
+@Builder
 public class Seller {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +21,8 @@ public class Seller {
     String name;
     int age;
     String mobNo;
+
+    @Column(unique = true)
     String email;
     String address;
     String enterprise;

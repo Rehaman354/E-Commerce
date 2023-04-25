@@ -14,7 +14,7 @@ import java.util.List;
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="customer")
+@Table(name="cart")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
 public class Cart {
     @Id
