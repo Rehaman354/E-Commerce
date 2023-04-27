@@ -4,6 +4,7 @@ import com.example.Ecommerce.Dto.Request.ProductRequestDto;
 import com.example.Ecommerce.Dto.Response.ProductResponseDto;
 import com.example.Ecommerce.Enum.ProductCategory;
 import com.example.Ecommerce.Service.Interfaces.ProductService;
+import com.example.Ecommerce.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,12 @@ public class ProductController {
     //return all "available" Products
     //return all "out_Of_Stock" products
     //return all "Only few left" products
-    //return product belong to certain category and below particular price
+    //return products belong to certain category and below particular price
+    @GetMapping("/get/{price}/{category}")
+    public List<ProductResponseDto> getAllProductsBelowPriceAndOfCategory(@PathVariable("price") int price,
+                                                               @PathVariable("category") String  productCategory)
+    {
+        return productService.getAllProductsBelowPriceAndOfCategory(price ,productCategory);
+    }
 
 }

@@ -1,32 +1,20 @@
-package com.example.Ecommerce.model;
+package com.example.Ecommerce.Dto.Request;
 
 import com.example.Ecommerce.Enum.CardType;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
-@Entity
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="card")
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
 @Builder
-public class Card {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+public class CardRequestDto {
+     int customerId;
     int cvv;
-    @Column(unique = true,nullable = false)
     String cardNo;
     Date expiryDate;
-    @Enumerated(EnumType.STRING)
     CardType cardType;//enum
-
-    //relations
-    @ManyToOne
-    @JoinColumn
-    Customer customer;
 }

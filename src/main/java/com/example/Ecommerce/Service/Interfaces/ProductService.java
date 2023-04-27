@@ -11,4 +11,6 @@ public interface ProductService{
     ProductResponseDto addProduct(ProductRequestDto productRequestDto) throws Exception;
 
     List<ProductResponseDto> allProductsOfParticularCategory(ProductCategory category);
+
+    List<ProductResponseDto> getAllProductsBelowPriceAndOfCategory(int price, String productCategory);
 }
