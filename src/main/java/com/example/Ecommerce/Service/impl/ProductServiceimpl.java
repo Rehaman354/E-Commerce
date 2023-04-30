@@ -23,6 +23,15 @@ public class ProductServiceimpl implements ProductService {
     SellerRepository sellerRepository;
     @Autowired
     ProductRepository productRepository;
+    public void setProductStatusByQuantity(Product product)
+    {
+        if(product.getQuantity()>10)
+            product.setProductStatus(ProductStatus.AVAILABLE);
+        else if(product.getQuantity()>0 && product.getQuantity()<=10)
+            product.setProductStatus(ProductStatus.ONLY_FEW_LEFT);
+        else
+            product.setProductStatus(ProductStatus.OUT_OF_STOCK);
+    }
     @Override
     public ProductResponseDto addProduct(ProductRequestDto productRequestDto) throws Exception{
         Seller seller;
@@ -34,12 +43,7 @@ public class ProductServiceimpl implements ProductService {
         }
         Product product= ProductTransformer.productRequestDtoToProduct(productRequestDto);
         product.setSeller(seller);
-        if(product.getQuantity()>10)
-            product.setProductStatus(ProductStatus.AVAILABLE);
-        else if(product.getQuantity()>0 && product.getQuantity()<=10)
-            product.setProductStatus(ProductStatus.ONLY_FEW_LEFT);
-        else
-            product.setProductStatus(ProductStatus.OUT_OF_STOCK);
+        setProductStatusByQuantity(product);
         //add product to seller product list
         seller.getProducts().add(product);
         //save the seller ,it will automatically saves child(product)

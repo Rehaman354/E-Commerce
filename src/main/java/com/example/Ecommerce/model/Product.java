@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data//it contains getter,setter,RequiredArgsconstructor,ToString,EqualAndHashCode annotataions
@@ -35,6 +37,6 @@ public class Product {
     @JoinColumn
     Seller seller;
 
-    @OneToOne(mappedBy = "product",cascade = CascadeType.ALL)
-    Item item;
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    List<Item> items=new ArrayList();
 }
