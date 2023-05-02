@@ -15,6 +15,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)//making all attributes or fields private default
 @Builder
 public class Card {
+    //assuming card as immutable,no updates or modifications are not allowed ,only create,fetch,delete
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;

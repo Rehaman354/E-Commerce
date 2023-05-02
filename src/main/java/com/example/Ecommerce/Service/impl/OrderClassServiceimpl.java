@@ -15,6 +15,8 @@ import com.example.Ecommerce.Service.Interfaces.ProductService;
 import com.example.Ecommerce.Transformer.ItemTransformer;
 import com.example.Ecommerce.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 @Service
 public class OrderClassServiceimpl implements OrderClassService {
+    @Autowired
+    JavaMailSender emailSender;
     @Autowired
     CustomerRepository customerRepository;
     @Autowired
@@ -39,7 +43,8 @@ public class OrderClassServiceimpl implements OrderClassService {
         OrderClass presentOrder=new OrderClass();
         presentOrder.setOrderNo(String.valueOf(UUID.randomUUID()));
         presentOrder.setCustomer(customer);
-        presentOrder.setItems(cart.getItems());
+        List<Item> orderedItems=cart.getItems();
+        presentOrder.setItems(orderedItems);
         String cardUsed=card.getCardNo();
         int len=cardUsed.length();
         String maskedCardNo="";
@@ -47,6 +52,10 @@ public class OrderClassServiceimpl implements OrderClassService {
         presentOrder.setCardUsed(maskedCardNo);
         presentOrder.setOrderdate(date);
         presentOrder.setTotalOrderValue(cart.getTotalCartCost());
+        for(Item item:cart.getItems())
+        {
+            item.setOrderClass(presentOrder);
+        }
         return presentOrder;
     }
 
@@ -105,6 +114,14 @@ public class OrderClassServiceimpl implements OrderClassService {
         ItemResponseDto itemResponseDto=ItemTransformer.itemToItemRequestDto(item);
         List<ItemResponseDto> orderedItems=new ArrayList<>();
         orderedItems.add(itemResponseDto);
+        //send mail to the customer about ordder details
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("noreplyaryan999@gmail.com");
+        message.setTo(customer.getEmail());
+        message.setSubject("Order details");
+        message.setText("Dear "+customer.getName()+", Your Order of value $"+presentOrder.getTotalOrderValue()+", using the card number ending with "+maskedCardNo+" has been Placed. Your Order will be shipped soon. "+"Thank for shopping with us!");
+        emailSender.send(message);
+
         return OrderResponseDto.builder()
                 .OrderedItems(orderedItems)
                 .orderDate(date)

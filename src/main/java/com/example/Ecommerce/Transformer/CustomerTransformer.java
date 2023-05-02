@@ -1,6 +1,7 @@
 package com.example.Ecommerce.Transformer;
 
 import com.example.Ecommerce.Dto.Request.CustomerRequestDto;
+import com.example.Ecommerce.Dto.Response.CustomerDetailResponseDto;
 import com.example.Ecommerce.Dto.Response.CustomerResponseDto;
 import com.example.Ecommerce.model.Customer;
 import lombok.experimental.UtilityClass;
@@ -24,5 +25,15 @@ public class CustomerTransformer {
                 .name(customer.getName())
                 .message("Congrats "+customer.getName()+" , you have been added!")
         .build();
+    }
+
+    public static CustomerDetailResponseDto customerToCustomerDetailResponseDto(Customer customer) {
+        return CustomerDetailResponseDto.builder()
+                .name(customer.getName())
+                .address(customer.getAddress())
+                .age(customer.getAge())
+                .email(customer.getEmail())
+                .mobNo(customer.getMobNo())
+                .build();
     }
 }

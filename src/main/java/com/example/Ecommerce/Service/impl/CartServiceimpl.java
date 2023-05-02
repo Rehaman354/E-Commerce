@@ -1,6 +1,7 @@
 package com.example.Ecommerce.Service.impl;
 
 import com.example.Ecommerce.Dto.Request.CartCheckOutRequestDto;
+import com.example.Ecommerce.Dto.Request.DeleteItemRequestDto;
 import com.example.Ecommerce.Dto.Request.ItemRequestDto;
 import com.example.Ecommerce.Dto.Response.CartResponseDto;
 import com.example.Ecommerce.Dto.Response.ItemResponseDto;
@@ -8,10 +9,8 @@ import com.example.Ecommerce.Dto.Response.OrderResponseDto;
 import com.example.Ecommerce.Exception.CardNotFoundException;
 import com.example.Ecommerce.Exception.EmptyCartException;
 import com.example.Ecommerce.Exception.InvalidCustomerException;
-import com.example.Ecommerce.Repositiory.CardRepository;
-import com.example.Ecommerce.Repositiory.CartRepository;
-import com.example.Ecommerce.Repositiory.CustomerRepository;
-import com.example.Ecommerce.Repositiory.OrderClassRepository;
+import com.example.Ecommerce.Exception.ItemNotFoundException;
+import com.example.Ecommerce.Repositiory.*;
 import com.example.Ecommerce.Service.Interfaces.CartService;
 import com.example.Ecommerce.Service.Interfaces.ItemService;
 import com.example.Ecommerce.Service.Interfaces.OrderClassService;
@@ -20,6 +19,8 @@ import com.example.Ecommerce.Transformer.ItemTransformer;
 import com.example.Ecommerce.Transformer.OrderTransformer;
 import com.example.Ecommerce.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import java.util.UUID;
 
 @Service
 public class CartServiceimpl implements CartService {
+    @Autowired
+    JavaMailSender emailSender;
     @Autowired
     ItemService itemService;
     @Autowired
@@ -43,6 +46,8 @@ public class CartServiceimpl implements CartService {
     OrderClassRepository orderClassRepository;
     @Autowired
     ProductService productService;
+    @Autowired
+    ItemRepository itemRepository;
     @Override
     public CartResponseDto addItemToCart(ItemRequestDto itemRequestDto) throws Exception {
         Item item;
@@ -102,6 +107,7 @@ public class CartServiceimpl implements CartService {
             throw new EmptyCartException("Cart is empty,pls add items to order!");
         //decrease items product quantities
         int noOfItems=cart.getItems().size();
+        //checking all items can be available or not
         for(int i=0;i<noOfItems;i++)
         {
             Item item=cart.getItems().get(i);
@@ -124,23 +130,87 @@ public class CartServiceimpl implements CartService {
         }
         //if all items are available place order
         OrderClass presentOrder=orderClassService.placeOrder(customer,card,date);
-        //all cart items will be assigned order and removed from cart
-        for(Item item:cart.getItems())
-        {
-            item.setOrderClass(presentOrder);
-        }
-        //change in customer
+        //change in customer attributes
         customer.getOrders().add(presentOrder);
-        //change in cart attributes (reset cart)
+        //reset cart
+//        resetCart(cart);
         cart.setTotalCartCost(0);
         cart.setNoOfItems(0);
         cart.setItems(new ArrayList<>());
-        customer.setCart(cart);
+
         //finally save order
         OrderClass savedOrder=orderClassRepository.save(presentOrder);
        //prepare Orderresponsedto
-        OrderResponseDto response=OrderTransformer.OrderToOrderResponseDto(presentOrder);
+        OrderResponseDto response=OrderTransformer.OrderToOrderResponseDto(savedOrder);
+        for(Item item: savedOrder.getItems()){
+            item.setCart(null);
+            itemRepository.save(item);
+        }
+        //send mail to the customer about ordder details
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("noreplyaryan999@gmail.com");
+        message.setTo(customer.getEmail());
+        message.setSubject("Order details");
+        message.setText("Dear "+customer.getName()+", Your Order of value $"+savedOrder.getTotalOrderValue()+", with an Order referenceId "+savedOrder.getOrderNo()+" has been Placed. Your Order will be shipped soon. "+"Thank for shopping with us!");
+        emailSender.send(message);
         return response;
+    }
+
+    @Override
+    public List<ItemResponseDto> allItemsInCart(int customerId) throws Exception {
+        Customer customer;
+        try{
+            customer=customerRepository.findById(customerId).get();
+        }catch(Exception e) {
+            throw new InvalidCustomerException("Customer does not exist");
+        }
+        Cart cart=customer.getCart();
+        List<ItemResponseDto> responseDtos=new ArrayList<>();
+       for(Item item: cart.getItems())
+       {
+           responseDtos.add(ItemTransformer.itemToItemRequestDto(item));
+       }
+       return responseDtos;
+    }
+
+    @Override
+    public ItemResponseDto removeItemInCart(DeleteItemRequestDto deleteItemRequestDto) throws Exception {
+        Customer customer;
+        try{
+            customer=customerRepository.findById(deleteItemRequestDto.getCustomerId()).get();
+        }catch(Exception e) {
+            throw new InvalidCustomerException("Customer does not exist");
+        }
+        Item item;
+        try {
+            item = itemRepository.findById(deleteItemRequestDto.getItemid()).get();
+        }catch(Exception e) {
+            throw new ItemNotFoundException("Item does not exist");
+        }
+        if(item==null||item.getCart().getCustomer()!=customer)
+            throw new Exception("Item not found in cart of customer");
+        //all details are ok ,then delete the item in cart and save the cart
+        Cart cart=customer.getCart();
+        int noofItems=cart.getNoOfItems();
+        cart.setNoOfItems(noofItems-1);
+        int itemCost=item.getRequiredQuantity()*item.getProduct().getPrice();
+        int cartTotal= cart.getTotalCartCost();
+        cart.setTotalCartCost(cartTotal-itemCost);
+        cart.getItems().remove(item);
+        cartRepository.save(cart);
+        itemRepository.deleteById(item.getId());
+        //prepare response after successful deletion
+        return ItemTransformer.itemToItemRequestDto(item);
+    }
+
+    public void resetCart(Cart cart){
+
+        cart.setTotalCartCost(0);
+        for(Item item: cart.getItems()){
+            item.setCart(null);
+        }
+        cart.setNoOfItems(0);
+        cart.getItems().clear();
     }
 
 }
