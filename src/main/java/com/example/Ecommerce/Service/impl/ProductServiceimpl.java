@@ -5,6 +5,7 @@ import com.example.Ecommerce.Dto.Response.ProductResponseDto;
 import com.example.Ecommerce.Enum.ProductCategory;
 import com.example.Ecommerce.Enum.ProductStatus;
 import com.example.Ecommerce.Exception.InvalidSellerException;
+import com.example.Ecommerce.Exception.ProductNotFoundException;
 import com.example.Ecommerce.Repositiory.ProductRepository;
 import com.example.Ecommerce.Repositiory.SellerRepository;
 import com.example.Ecommerce.Service.Interfaces.ProductService;
@@ -32,6 +33,92 @@ public class ProductServiceimpl implements ProductService {
         else
             product.setProductStatus(ProductStatus.OUT_OF_STOCK);
     }
+
+    @Override
+    public List<ProductResponseDto> getAllProductsOfSeller(int id) throws Exception {
+        Seller seller;
+        try{
+            seller=sellerRepository.findById(id).get();
+        }catch(Exception e)
+        {
+            throw new InvalidSellerException("sellerId does not exist");
+        }
+        List<ProductResponseDto> responseDtos=new ArrayList<>();
+       for(Product product: seller.getProducts()){
+           responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+       }
+        return responseDtos;
+    }
+
+    @Override
+    public ProductResponseDto deleteProductById(int productId) throws Exception {
+        Product product;
+        try{
+            product=productRepository.findById(productId).get();
+        }catch (Exception e){
+            throw new ProductNotFoundException("product with the given Id does not exist");
+        }
+        ProductResponseDto responseDto=ProductTransformer.productToProductResponseDto(product);
+        Seller seller=product.getSeller();
+        seller.getProducts().remove(product);
+        sellerRepository.save(seller);
+        productRepository.delete(product);
+        return responseDto;
+    }
+
+    @Override
+    public List<ProductResponseDto> top5Cheapest() {
+       List<Product> products=productRepository.top5Cheapest();
+       List<ProductResponseDto> responseDtos=new ArrayList<>();
+       for(Product product:products){
+           responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+       }
+       return  responseDtos;
+    }
+
+    @Override
+    public List<ProductResponseDto> top5Costliest() {
+        List<Product> products=productRepository.top5Costliest();
+        List<ProductResponseDto> responseDtos=new ArrayList<>();
+        for(Product product:products){
+            responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+        }
+        return  responseDtos;
+    }
+
+    @Override
+    public List<ProductResponseDto> getAllProducts() {
+        List<Product> products=productRepository.getAllProducts();
+        List<ProductResponseDto> responseDtos=new ArrayList<>();
+        for(Product product:products){
+            responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+        }
+        return  responseDtos;
+    }
+
+    @Override
+    public List<ProductResponseDto> getAllProductsOfCategory(ProductCategory category)
+    {
+        String catgory=category.toString();
+        List<Product> products=productRepository.getAllProductsOfCategory(catgory);
+        List<ProductResponseDto> responseDtos=new ArrayList<>();
+        for(Product product:products){
+            responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+        }
+        return  responseDtos;
+    }
+
+    @Override
+    public List<ProductResponseDto> getProductsBasedOnAvailability(ProductStatus status) {
+        String productStatus=status.toString();
+        List<Product> products=productRepository.getProductsBasedOnAvailability(productStatus);
+        List<ProductResponseDto> responseDtos=new ArrayList<>();
+        for(Product product:products){
+            responseDtos.add(ProductTransformer.productToProductResponseDto(product));
+        }
+        return  responseDtos;
+    }
+
     @Override
     public ProductResponseDto addProduct(ProductRequestDto productRequestDto) throws Exception{
         Seller seller;

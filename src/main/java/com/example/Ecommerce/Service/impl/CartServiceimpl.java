@@ -151,7 +151,12 @@ public class CartServiceimpl implements CartService {
         message.setFrom("noreplyaryan999@gmail.com");
         message.setTo(customer.getEmail());
         message.setSubject("Order details");
-        message.setText("Dear "+customer.getName()+", Your Order of value $"+savedOrder.getTotalOrderValue()+", with an Order referenceId "+savedOrder.getOrderNo()+" has been Placed. Your Order will be shipped soon. "+"Thank for shopping with us!");
+        StringBuilder itemNames=new StringBuilder();
+        for(Item item:savedOrder.getItems())
+        {
+            itemNames.append(item.getProduct().getName()+" ");
+        }
+        message.setText("Dear "+customer.getName()+", Your Order of value $"+savedOrder.getTotalOrderValue()+", with an Order referenceId "+savedOrder.getOrderNo()+" has been Placed for the items "+itemNames.toString()+". Your Order will be shipped soon. "+"Thank for shopping with us!");
         emailSender.send(message);
         return response;
     }

@@ -20,8 +20,8 @@ public class Seller {
     int id;
     String name;
     int age;
+    @Column(unique = true)
     String mobNo;
-
     @Column(unique = true)
     String email;
     String address;

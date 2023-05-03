@@ -129,6 +129,8 @@ public class CustomerServiceimpl implements CustomerService {
                 throw new MobileNotFoundException("mobNo does not exist");
             }
         }
+        if(customer==null)
+            throw new Exception("customer does not exist");
         CustomerDetailResponseDto response=CustomerTransformer.customerToCustomerDetailResponseDto(customer);
         customerRepository.delete(customer);
         return response;

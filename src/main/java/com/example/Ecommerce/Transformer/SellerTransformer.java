@@ -1,6 +1,7 @@
 package com.example.Ecommerce.Transformer;
 
 import com.example.Ecommerce.Dto.Request.SellerRequestDto;
+import com.example.Ecommerce.Dto.Response.SellerDetailsResponseDto;
 import com.example.Ecommerce.Dto.Response.SellerResponseDto;
 import com.example.Ecommerce.model.Seller;
 import lombok.experimental.UtilityClass;
@@ -27,4 +28,17 @@ public class SellerTransformer {
                 .build();
         return responseDto;
     }
+    public static SellerDetailsResponseDto sellerToSellerDetailsResponseDto(Seller seller)
+    {
+        SellerDetailsResponseDto responseDto=SellerDetailsResponseDto.builder()
+                .address(seller.getAddress())
+                .name(seller.getName())
+                .mobNo(seller.getMobNo())
+                .email(seller.getEmail())
+                .enterprise(seller.getEnterprise())
+                .age(seller.getAge())
+                .build();
+        return responseDto;
+    }
+
 }
