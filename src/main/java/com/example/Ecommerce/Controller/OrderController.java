@@ -29,7 +29,10 @@ public class OrderController {
     public List<OrderResponseDto> getRecent5(){
         return orderClassService.recent5();
     }
-    //delete an order from orderlist
     //select order and customer with highest value in orders
+    @GetMapping("/highestValueOrder")
+    public OrderResponseDto highestValueOrder(){
+        return orderClassService.highestValueOrder();
+    }
 
 }

@@ -17,4 +17,6 @@ public interface OrderClassService {
     List<OrderResponseDto> getAllOrdersOfCustomer(int id) throws Exception;
 
     List<OrderResponseDto> recent5();
+
+    OrderResponseDto highestValueOrder();
 }

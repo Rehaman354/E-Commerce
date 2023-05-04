@@ -159,5 +159,11 @@ public class OrderClassServiceimpl implements OrderClassService {
         }
         return responseDtos;
     }
+
+    @Override
+    public OrderResponseDto highestValueOrder() {
+        OrderClass order=orderClassRepository.highestValueOrder();
+        return OrderTransformer.OrderToOrderResponseDto(order);
+    }
 }
 
